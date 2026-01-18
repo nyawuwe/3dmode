@@ -13,9 +13,6 @@ const canvasMini = document.querySelector('#canvas-mini');
 const rendererMini = new THREE.WebGLRenderer({ canvas: canvasMini, antialias: true, alpha: true });
 rendererMini.setSize(window.innerWidth, window.innerHeight);
 rendererMini.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-// Important: Turn off autoClear so we can clear manually or let Scissor handle it
-// Actually for mini renderer, we want to clear the whole frame once, then render scissors.
-// Or just clear before rendering.
 rendererMini.setClearColor(0x000000, 0); // Transparent
 
 const miniScene = new THREE.Scene();
@@ -133,16 +130,17 @@ const sphereMaterial = new THREE.ShaderMaterial({
         uColorEdge: { value: new THREE.Color('#ff4d4d') },
         uHover: { value: new THREE.Vector2(0.5, 0.5) },
         uDistort: { value: 0.04 },
+        uOpacity: { value: 1.0 } // Add opacity if needed, though simple fade via scale is easier
     },
     vertexShader,
-    fragmentShader
+    fragmentShader,
+    transparent: true
 });
 const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
 scene.add(sphere);
 
 // Mini Sphere (Shared Mesh for Mini Scene)
 const miniMaterial = sphereMaterial.clone();
-// We will update miniMaterial uniforms per card render
 const miniSphere = new THREE.Mesh(sphereGeometry, miniMaterial);
 miniScene.add(miniSphere);
 
@@ -164,7 +162,6 @@ document.addEventListener('mousemove', (event) => {
     sphereMaterial.uniforms.uHover.value.x = uX;
     sphereMaterial.uniforms.uHover.value.y = uY;
 
-    // We can also influence the mini spheres if desired
     miniMaterial.uniforms.uHover.value.x = uX;
     miniMaterial.uniforms.uHover.value.y = uY;
 });
@@ -175,9 +172,9 @@ gsap.registerPlugin(ScrollTrigger);
 // Initial State
 sphere.position.y = 0;
 
-// Hero -> Manifesto (Sphere Movement)
-gsap.to(sphere.position, {
-    y: 2.0,
+// Hero -> Manifesto (Main Sphere Fades Out)
+gsap.to(sphere.scale, {
+    x: 0, y: 0, z: 0,
     scrollTrigger: {
         trigger: ".manifesto",
         start: "top bottom",
@@ -185,29 +182,21 @@ gsap.to(sphere.position, {
         scrub: 1,
     }
 });
-gsap.to(sphere.scale, {
-    x: 0.5, y: 0.5, z: 0.5,
+
+// Stack Animation (Reveal on Scroll)
+const stackTimeline = gsap.timeline({
     scrollTrigger: {
         trigger: ".manifesto",
-        start: "top bottom",
-        end: "top center",
+        start: "top 70%",
+        end: "center center",
         scrub: 1
     }
 });
 
-// Manifesto Content Animation
-gsap.from(".grid-col", {
-    y: 50,
-    opacity: 0,
-    duration: 1,
-    stagger: 0.2,
-    ease: "power3.out",
-    scrollTrigger: {
-        trigger: ".manifesto",
-        start: "top 80%",
-    }
-});
-
+stackTimeline
+    .from(".card-back-1", { y: 20, opacity: 0, scale: 0.95 }, 0)
+    .from(".card-back-2", { y: 40, opacity: 0, scale: 0.9 }, 0.1)
+    .from(".card-front", { y: 50, opacity: 0 }, 0);
 
 // --- Animation Loop ---
 const clock = new THREE.Clock();
@@ -229,27 +218,30 @@ function animate() {
     sphere.rotation.z += 0.002;
 
     // Rotate Mini Sphere
-    miniSphere.rotation.copy(sphere.rotation); // Sync rotation or independent
-    miniSphere.rotation.z -= 0.005; // Slightly different spin
-
+    miniSphere.rotation.copy(sphere.rotation);
+    miniSphere.rotation.z -= 0.005;
 
     // --- Render Main Scene (Background) ---
-    // Clears #canvas3d
     renderer.render(scene, camera);
 
-    // --- Render Mini Globes in Cards (Foreground) ---
-    // Clears #canvas-mini fully once per frame
+    // --- Render Mini Globes (Foreground Scissor) ---
     rendererMini.setScissorTest(false);
     rendererMini.clear();
-
     rendererMini.setScissorTest(true);
 
-    const cards = document.querySelectorAll('.data-card');
-    cards.forEach((card) => {
-        const target = card.querySelector('.mini-globe-target');
-        if (!target) return;
+    // 1. Gather all targets: Manifesto Visual + Cards
+    const targets = [];
 
-        const rect = target.getBoundingClientRect();
+    // Manifesto Visual
+    const manifestoTarget = document.querySelector('.visual-target');
+    if(manifestoTarget) targets.push({ el: manifestoTarget, type: 'manifesto' });
+
+    // Data Cards
+    const cardTargets = document.querySelectorAll('.mini-globe-target');
+    cardTargets.forEach(el => targets.push({ el: el, type: 'card', parent: el.closest('.data-card') }));
+
+    targets.forEach((item) => {
+        const rect = item.el.getBoundingClientRect();
 
         // Check if visible
         if (rect.bottom < 0 || rect.top > window.innerHeight ||
@@ -257,22 +249,33 @@ function animate() {
             return;
         }
 
-        // Adjust scissor/viewport
         const width = rect.width;
         const height = rect.height;
         const left = rect.left;
-        const bottom = window.innerHeight - rect.bottom; // Invert Y for GL
+        const bottom = window.innerHeight - rect.bottom;
 
         rendererMini.setViewport(left, bottom, width, height);
         rendererMini.setScissor(left, bottom, width, height);
 
-        // Update Material Colors based on Card Data
-        const colorHex = card.getAttribute('data-color');
-        if(colorHex) {
-            const baseColor = new THREE.Color(colorHex);
-            miniMaterial.uniforms.uColorMid.value.copy(baseColor);
-            miniMaterial.uniforms.uColorCenter.value.set('#ffffff');
-            miniMaterial.uniforms.uColorEdge.value.copy(baseColor).multiplyScalar(0.8);
+        // Styling based on type
+        if (item.type === 'manifesto') {
+            // Restore default colors for the main sun/globe look
+            miniMaterial.uniforms.uColorCenter.value.set('#ffffba');
+            miniMaterial.uniforms.uColorMid.value.set('#ffaa00');
+            miniMaterial.uniforms.uColorEdge.value.set('#ff4d4d');
+
+            // Adjust scale if needed for this view
+            miniSphere.scale.set(0.9, 0.9, 0.9);
+        } else if (item.type === 'card' && item.parent) {
+            const colorHex = item.parent.getAttribute('data-color');
+            if(colorHex) {
+                const baseColor = new THREE.Color(colorHex);
+                miniMaterial.uniforms.uColorMid.value.copy(baseColor);
+                miniMaterial.uniforms.uColorCenter.value.set('#ffffff');
+                miniMaterial.uniforms.uColorEdge.value.copy(baseColor).multiplyScalar(0.8);
+            }
+            // Standard scale for cards
+            miniSphere.scale.set(1, 1, 1);
         }
 
         rendererMini.render(miniScene, miniCamera);
@@ -283,17 +286,10 @@ function animate() {
 animate();
 
 window.addEventListener('resize', () => {
-    // Update both cameras
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-
-    // Mini camera aspect? Actually, since we use scissor, the aspect ratio is determined by the viewport?
-    // The camera projection matrix assumes an aspect ratio.
-    // Ideally, for each scissor, we should update the camera aspect ratio to match the square target (40x40).
-    // The mini-globe target is square. So aspect is 1.
     miniCamera.aspect = 1;
     miniCamera.updateProjectionMatrix();
-
     renderer.setSize(window.innerWidth, window.innerHeight);
     rendererMini.setSize(window.innerWidth, window.innerHeight);
 });

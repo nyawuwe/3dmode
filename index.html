@@ -3,292 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rising Sun - Agriculture Africaine</title>
+    <title>3D Rising Sun - Agriculture</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 </head>
 <body>
-    <div id="canvas-container">
-        <canvas id="canvas3d"></canvas>
-    </div>
-    <canvas id="canvas-mini"></canvas>
 
-    <div class="grain"></div>
+    <canvas id="canvas3d"></canvas>
+    <canvas id="canvas-mini"></canvas> <!-- Overlay for mini globes -->
 
-    <div class="scroller">
-        <section class="hero">
-            <div id="ui-layer">
-                <div class="top-left">
-                    <div class="brand-block">
-                        <strong>RISING SUN</strong><br>
-                        <span class="script-font">Plateforme Agricole</span>
-                    </div>
-                    <div class="pills">
-                        <div class="pill">FINANCEMENT</div>
-                        <div class="pill">EXPERTISE</div>
-                        <div class="pill">ÉQUIPEMENT</div>
-                    </div>
-                </div>
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>L'Avenir de l'Agri</h1>
+            <p>Une révolution solaire pour une agriculture durable.</p>
+        </div>
+        <div class="scroll-indicator">
+            <span>Scroll</span>
+        </div>
+    </section>
 
-                <div class="top-right">
-                    <div class="line"></div>
-                </div>
+    <!-- MANIFESTO / STACKED CARDS SECTION -->
+    <section class="manifesto">
+        <div class="card-stack-container">
 
-                <div class="center-content">
-                    <h1>RISING SUN</h1>
-                    <div class="hero-subtitle">L'AVENIR DE L'AGRICULTURE</div>
-                </div>
-
-                <div class="bottom-left">
-                    <span>DÉFILER VERS LE BAS</span>
-                </div>
-
-                <div class="bottom-right">
-                    RISING SUN © 2024<br>
-                    AFRIQUE
+            <!-- Ghost Card 2 (Furthest Back) -->
+            <div class="card-stack-element card-back-2">
+                <div class="card-header-bar">
+                    <span class="brand-faded">Système Agri</span>
+                    <div class="logo-circle-small"></div>
+                    <span class="url-faded">www.agrifuture.com</span>
                 </div>
             </div>
-        </section>
 
-        <section class="manifesto">
-            <div class="section-header-bar">
-                <span>Rising Sun System</span>
-                <div class="logo-mark">R</div>
-                <span>www.risingsun.africa</span>
+            <!-- Ghost Card 1 (Middle) -->
+            <div class="card-stack-element card-back-1">
+                <div class="card-header-bar">
+                    <span class="brand-faded">Système Agri</span>
+                    <div class="logo-circle-small"></div>
+                    <span class="url-faded">www.agrifuture.com</span>
+                </div>
             </div>
 
-            <div class="manifesto-content-grid">
-                <!-- Column 1: Description -->
-                <div class="grid-col col-description">
-                    <span class="overline">VUE D'ENSEMBLE</span>
-                    <h2>Description</h2>
-                    <div class="text-block">
+            <!-- Main Front Card -->
+            <div class="card-stack-element card-front">
+                <div class="card-header-bar">
+                    <div class="brand">Système Agri v2.0</div>
+                    <div class="logo-circle">A</div>
+                    <div class="url">www.agrifuture.com</div>
+                </div>
+
+                <div class="card-body-grid">
+                    <!-- Column 1: Description -->
+                    <div class="grid-col col-left">
+                        <span class="overline">VUE D'ENSEMBLE</span>
+                        <h2>Description</h2>
                         <p>
-                            Rising Sun est une infrastructure numérique cruciale pour l'écosystème agricole africain.
-                            Elle sert d'outil fondamental pour connecter les financements aux agriculteurs.
+                            Le système Agri v2.0 est un élément crucial de notre écosystème,
+                            servant d'outil fondamental pour les agriculteurs.
+                            Il fournit une solution complète pour les interactions liées aux données,
+                            garantissant une sélection précise et un filtrage efficace des besoins.
                         </p>
-                        <p>
-                            Nous reconnaissons l'importance de fournir une solution complète pour les interactions
-                            liées aux données, couvrant non seulement le financement participatif mais aussi
-                            l'expertise technique et la gestion des ressources.
-                        </p>
+                        <div class="spacer"></div>
+                        <a href="#" class="bottom-link">Explorer la galerie -></a>
                     </div>
-                    <a href="#" class="explore-link">Explorer la plateforme →</a>
-                </div>
 
-                <!-- Column 2: Visual (Date Picker / System) -->
-                <div class="grid-col col-visual">
-                    <span class="overline">COMPOSANT PRINCIPAL</span>
-                    <h2>Le Noyau</h2>
+                    <!-- Column 2: Visual (Center) -->
+                    <div class="grid-col col-center">
+                        <span class="overline">COMPOSANT CENTRAL</span>
+                        <h2>Le Globe</h2>
+                        <!-- The 3D Sphere will be positioned here via GSAP/CSS -->
+                        <div class="visual-target"></div>
+                        <div class="spacer"></div>
+                        <p class="center-sub">En savoir plus sur le Globe</p>
+                    </div>
 
-                    <div class="visual-card-dark">
-                        <div class="visual-internal-ui">
-                            <div class="ui-row">
-                                <span>SYNC</span>
-                                <div class="ui-dots">
-                                    <span></span><span></span><span></span>
-                                </div>
+                    <!-- Column 3: Spotlight -->
+                    <div class="grid-col col-right">
+                        <span class="overline">VUE D'ENSEMBLE</span>
+                        <h2>Spotlight</h2>
+                        <p>Voici les traits majeurs du composant de base dans le tableau ci-dessous:</p>
+
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <span class="icon">◇</span> <span>Données Temps Réel</span>
                             </div>
-                            <div class="ui-grid-display">
-                                <!-- Grid of items representing data -->
-                                <div class="ui-cell active"></div><div class="ui-cell"></div><div class="ui-cell active"></div><div class="ui-cell"></div>
-                                <div class="ui-cell"></div><div class="ui-cell active"></div><div class="ui-cell"></div><div class="ui-cell active"></div>
-                                <div class="ui-cell active"></div><div class="ui-cell"></div><div class="ui-cell active"></div><div class="ui-cell"></div>
+                            <div class="feature-item">
+                                <span class="icon">◇</span> <span>Filtres Avancés</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="icon">◇</span> <span>Option Pied de Page</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="icon">◇</span> <span>Haute Personnalisation</span>
                             </div>
                         </div>
-                    </div>
 
-                    <a href="#" class="caption-link">En savoir plus sur le Noyau</a>
+                        <div class="spacer"></div>
+                        <a href="#" class="bottom-link-muted">Documentation -> Notion</a>
+                    </div>
                 </div>
 
-                <!-- Column 3: Spotlight -->
-                <div class="grid-col col-spotlight">
-                    <span class="overline">VUE D'ENSEMBLE</span>
-                    <h2>Fonctionnalités</h2>
-                    <p class="spotlight-intro">
-                        Vous trouverez les traits majeurs du composant de base Rising Sun dans le tableau ci-dessous:
-                    </p>
+                <!-- Fog Overlay to blend bottom -->
+                <div class="card-fog"></div>
+            </div>
 
-                    <ul class="spotlight-list">
-                        <li>
-                            <span class="spot-icon">◈</span>
-                            <span>Financement Participatif</span>
-                        </li>
-                        <li>
-                            <span class="spot-icon">◈</span>
-                            <span>Expertise Technique</span>
-                        </li>
-                        <li>
-                            <span class="spot-icon">◈</span>
-                            <span>Suivi en Temps Réel</span>
-                        </li>
-                        <li>
-                            <span class="spot-icon">◈</span>
-                            <span>Gestion des Risques</span>
-                        </li>
-                        <li>
-                            <span class="spot-icon">◈</span>
-                            <span>Haute Disponibilité</span>
-                        </li>
-                    </ul>
+        </div>
+    </section>
 
-                    <a href="#" class="doc-link">Documentation — Lire sur Notion</a>
+    <!-- CARDS SECTION (Agriculture Stats) -->
+    <section class="cards-section">
+        <div class="cards-container">
+            <!-- Card 1 -->
+            <div class="data-card" data-color="#4facfe"> <!-- Blue -->
+                <div class="card-top">
+                    <h3>Temps</h3>
+                    <div class="mini-globe-target"></div>
+                </div>
+                <div class="card-bottom">
+                    <p class="stat">24h</p>
+                    <p class="desc">Cycle complet de surveillance des cultures.</p>
                 </div>
             </div>
-        </section>
 
-        <section class="mechanisms">
-            <h2>DONNÉES LOCALES</h2>
-            <div class="mechanism-grid">
-
-                <!-- Card 1: Blue/Green (Morning) -->
-                <div class="data-card card-0" data-color="#8fd3f4">
-                    <div class="card-top-row">
-                        <div class="mini-globe-target"></div> <!-- 3D Globe renders here -->
-                    </div>
-
-                    <div class="card-time-main">
-                        <span class="time-big">08:45</span>
-                        <span class="time-meridiem">am</span>
-                    </div>
-
-                    <div class="card-metrics-row">
-                        <div class="metric">
-                            <span class="label">HUMIDITÉ SOL</span>
-                            <span class="value">42%</span>
-                        </div>
-                        <div class="metric">
-                            <span class="label">PH</span>
-                            <span class="value">6.8</span>
-                        </div>
-                    </div>
-
-                    <div class="card-stats-grid">
-                        <div class="stat-item">
-                            <span class="stat-label">CONDITIONS</span>
-                            <span class="stat-val">Clair</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">TEMPÉRATURE</span>
-                            <span class="stat-val">24°</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">IRRIGATION</span>
-                            <span class="stat-val">Optimale</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">VENT</span>
-                            <span class="stat-val">12km/h</span>
-                        </div>
-                    </div>
-
-                    <div class="card-bottom-bar bar-0">
-                        <span>45</span>
-                        <div class="bar-gradient"></div>
-                    </div>
+            <!-- Card 2 -->
+            <div class="data-card" data-color="#f093fb"> <!-- Purple/Pink -->
+                <div class="card-top">
+                    <h3>Métriques</h3>
+                    <div class="mini-globe-target"></div>
                 </div>
-
-                <!-- Card 2: Yellow/Orange (Noon) -->
-                <div class="data-card card-1" data-color="#f6d365">
-                     <div class="card-top-row">
-                        <div class="mini-globe-target"></div>
-                    </div>
-
-                    <div class="card-time-main">
-                        <span class="time-big">12:30</span>
-                        <span class="time-meridiem">pm</span>
-                    </div>
-
-                    <div class="card-metrics-row">
-                        <div class="metric">
-                            <span class="label">ENSOLEILLEMENT</span>
-                            <span class="value">UV 8</span>
-                        </div>
-                        <div class="metric">
-                            <span class="label">CROISSANCE</span>
-                            <span class="value">+2mm</span>
-                        </div>
-                    </div>
-
-                    <div class="card-stats-grid">
-                        <div class="stat-item">
-                            <span class="stat-label">CONDITIONS</span>
-                            <span class="stat-val">Radiant</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">TEMPÉRATURE</span>
-                            <span class="stat-val">32°</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">EVAPORATION</span>
-                            <span class="stat-val">Haute</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">RISQUE</span>
-                            <span class="stat-val">Faible</span>
-                        </div>
-                    </div>
-                     <div class="card-bottom-bar bar-1">
-                        <span>91</span>
-                        <div class="bar-gradient"></div>
-                    </div>
+                <div class="card-bottom">
+                    <p class="stat">98%</p>
+                    <p class="desc">Précision des données récoltées.</p>
                 </div>
-
-                <!-- Card 3: Purple/Orange (Evening) -->
-                <div class="data-card card-2" data-color="#a18cd1">
-                     <div class="card-top-row">
-                        <div class="mini-globe-target"></div>
-                    </div>
-
-                    <div class="card-time-main">
-                        <span class="time-big">07:15</span>
-                        <span class="time-meridiem">pm</span>
-                    </div>
-
-                    <div class="card-metrics-row">
-                        <div class="metric">
-                            <span class="label">CYCLE</span>
-                            <span class="value">Fin</span>
-                        </div>
-                        <div class="metric">
-                            <span class="label">NITROGEN</span>
-                            <span class="value">Stable</span>
-                        </div>
-                    </div>
-
-                    <div class="card-stats-grid">
-                        <div class="stat-item">
-                            <span class="stat-label">CONDITIONS</span>
-                            <span class="stat-val">Calme</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">TEMPÉRATURE</span>
-                            <span class="stat-val">22°</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">ROSÉE</span>
-                            <span class="stat-val">Moyenne</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">HUMIDITÉ</span>
-                            <span class="stat-val">55%</span>
-                        </div>
-                    </div>
-                     <div class="card-bottom-bar bar-2">
-                        <span>68</span>
-                        <div class="bar-gradient"></div>
-                    </div>
-                </div>
-
             </div>
-        </section>
 
-        <section class="vision">
-            <h2>UNISSONS-NOUS</h2>
-        </section>
-    </div>
+            <!-- Card 3 -->
+            <div class="data-card" data-color="#ffeb3b"> <!-- Yellow -->
+                <div class="card-top">
+                    <h3>Rendement</h3>
+                    <div class="mini-globe-target"></div>
+                </div>
+                <div class="card-bottom">
+                    <p class="stat">+15%</p>
+                    <p class="desc">Augmentation annuelle moyenne.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <script src="script.js"></script>
 </body>
