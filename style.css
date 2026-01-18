@@ -1,0 +1,273 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cedarville+Cursive&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    background-color: #dbecef; /* Fallback */
+    color: #1a1a1a;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+#canvas-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 0;
+}
+
+.grain {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 20;
+    opacity: 0.07;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Scroller */
+.scroller {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+}
+
+/* --- HERO SECTION --- */
+.hero {
+    height: 100vh;
+    width: 100%;
+    position: relative;
+}
+
+#ui-layer {
+    width: 100%;
+    height: 100%;
+    padding: 40px;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr auto 1fr;
+    pointer-events: none; /* Let clicks pass through for now, or remove if text selection needed */
+}
+/* Re-enable pointer events for specific interactables if needed */
+.mechanism-card, .brand-block, h1, p {
+    pointer-events: auto;
+}
+
+
+.top-left {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.brand-block {
+    font-size: 0.9rem;
+    line-height: 1.2;
+}
+.script-font {
+    font-family: 'Cedarville Cursive', cursive;
+    font-size: 1.2em;
+}
+
+.pills {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+.pill {
+    border: 1px solid #1a1a1a;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    width: fit-content;
+    font-weight: 500;
+}
+
+.top-right {
+    grid-column: 3;
+    grid-row: 1;
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 20px;
+}
+.line {
+    height: 1px;
+    background-color: #1a1a1a;
+    width: 150px;
+}
+
+.center-content {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+h1 {
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(6rem, 18vw, 14rem);
+    color: white;
+    margin: 0;
+    letter-spacing: -4px;
+    font-weight: 700;
+    position: relative;
+    z-index: 2;
+    text-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    line-height: 0.9;
+}
+
+.hero-subtitle {
+    position: absolute;
+    bottom: -30px;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.5rem;
+    color: #1a1a1a;
+    white-space: nowrap;
+    opacity: 0; /* Animated in later maybe */
+    animation: fadeIn 1s 1s forwards;
+}
+@keyframes fadeIn { to { opacity: 1; } }
+
+.spiral-icon {
+    position: absolute;
+    top: 5%;
+    right: 25%;
+    width: 50px;
+    height: 50px;
+}
+
+.bottom-left {
+    grid-column: 1;
+    grid-row: 3;
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 40px;
+}
+
+.bottom-center {
+    grid-column: 2;
+    grid-row: 3;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 40px;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.bottom-right {
+    grid-column: 3;
+    grid-row: 3;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding-bottom: 40px;
+    text-align: right;
+    font-size: 0.9rem;
+    line-height: 1.2;
+}
+
+
+/* --- SECTIONS --- */
+section.manifesto {
+    min-height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 10vh 20px;
+    /* Glassmorphism for readability over 3D background */
+    backdrop-filter: blur(2px);
+}
+
+.manifesto-content {
+    max-width: 800px;
+}
+.manifesto h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    margin-bottom: 30px;
+}
+.manifesto p {
+    font-size: 1.4rem;
+    line-height: 1.6;
+    font-weight: 300;
+}
+
+section.mechanisms {
+    min-height: 100vh;
+    padding: 100px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: rgba(255,255,255,0.4); /* Slight background to separate */
+}
+.mechanisms h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    margin-bottom: 60px;
+}
+.mechanism-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 60px;
+}
+.mechanism-card {
+    border-top: 1px solid #1a1a1a;
+    padding-top: 20px;
+    transition: transform 0.3s ease;
+}
+.mechanism-card:hover {
+    transform: translateY(-10px);
+}
+.mechanism-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    margin: 0 0 15px 0;
+}
+
+.card-icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 20px;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.card-icon svg {
+    width: 100%;
+    height: 100%;
+    stroke: #1a1a1a;
+}
+
+.mechanism-card:hover .card-icon {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+section.vision {
+    height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.vision h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 10vw, 8rem);
+}
