@@ -1,430 +1,455 @@
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script type="module">import * as THREE from "https://cdn.skypack.dev/three@0.129.0/build/three.module.js";
-    import { GLTFLoader } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js";
-    import { gsap } from "https://cdn.skypack.dev/gsap";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sphere 3D</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cedarville+Cursive&display=swap');
 
-    const camera = new THREE.PerspectiveCamera(
-        10,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000
-    );
-    camera.position.z = 13;
-
-    const scene = new THREE.Scene();
-    let bee;
-    let mixer;
-    const loader = new GLTFLoader();
-
-    // Fixed GLB URL - using raw.githubusercontent.com which serves with proper CORS headers
-    loader.load(
-        "https://raw.githubusercontent.com/DennysDionigi/bee-glb/94253437c023643dd868592e11a0fd2c228cfe07/demon_bee_full_texture.glb",
-        function (gltf) {
-            bee = gltf.scene;
-            scene.add(bee);
-
-            mixer = new THREE.AnimationMixer(bee);
-            mixer.clipAction(gltf.animations[0]).play();
-            modelMove();
-        },
-        function (xhr) {
-            // Progress callback
-            console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
-        },
-        function (error) {
-            // Error callback
-            console.error("Error loading model:", error);
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            background-color: #dbecef; /* Fallback */
+            color: #1a1a1a;
         }
-    );
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.getElementById("container3D").appendChild(renderer.domElement);
-
-    // light
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.3);
-    scene.add(ambientLight);
-
-    const topLight = new THREE.DirectionalLight(0xffffff, 1);
-    topLight.position.set(500, 500, 500);
-    scene.add(topLight);
-
-    const reRender3D = () => {
-        requestAnimationFrame(reRender3D);
-        renderer.render(scene, camera);
-        if (mixer) mixer.update(0.02);
-    };
-    reRender3D();
-
-    let arrPositionModel = [
-        {
-            id: "banner",
-            position: { x: 0, y: -1, z: 0 },
-            rotation: { x: 0, y: 1.5, z: 0 }
-        },
-        {
-            id: "intro",
-            position: { x: 1, y: -1, z: -5 },
-            rotation: { x: 0.5, y: -0.5, z: 0.5 }
-        },
-        {
-            id: "description",
-            position: { x: -1, y: -1, z: -5 },
-            rotation: { x: 0, y: 0.5, z: 0.2 }
-        },
-        {
-            id: "contact",
-            position: { x: 0.45, y: -2, z: -10 },
-            rotation: { x: 0.2, y: -0.5, z: -0.2 }
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
         }
-    ];
 
-    const modelMove = () => {
-        const sections = document.querySelectorAll(".section");
-        let currentSection;
-        sections.forEach((section) => {
-            const rect = section.getBoundingClientRect();
-            if (rect.top <= window.innerHeight / 3) {
-                currentSection = section.id;
+        #ui-layer {
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            pointer-events: none; /* Let clicks pass through to 3D */
+            padding: 40px;
+            box-sizing: border-box;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr auto 1fr;
+        }
+
+        /* Top Section */
+        .top-left {
+            grid-column: 1;
+            grid-row: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .brand-block {
+            font-size: 0.9rem;
+            line-height: 1.2;
+        }
+        .script-font {
+            font-family: 'Cedarville Cursive', cursive;
+            font-size: 1.2em;
+        }
+
+        .pills {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+            margin-left: 0px;
+        }
+        .pill {
+            border: 1px solid #1a1a1a;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            width: fit-content;
+            font-weight: 500;
+        }
+
+        .top-right {
+            grid-column: 3;
+            grid-row: 1;
+            display: flex;
+            justify-content: flex-end;
+            padding-top: 20px;
+        }
+        .line {
+            height: 1px;
+            background-color: #1a1a1a;
+            width: 150px;
+        }
+
+        /* Center Section */
+        .center-content {
+            grid-column: 1 / -1;
+            grid-row: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        h1 {
+            font-size: clamp(6rem, 18vw, 14rem);
+            color: white;
+            margin: 0;
+            letter-spacing: -4px;
+            font-weight: 700;
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Subtle shadow for legibility if needed */
+        }
+
+        .spiral-icon {
+            position: absolute;
+            top: 5%;
+            right: 25%;
+            width: 50px;
+            height: 50px;
+        }
+
+        /* Bottom Section */
+        .bottom-left {
+            grid-column: 1;
+            grid-row: 3;
+            display: flex;
+            align-items: flex-end;
+            padding-bottom: 40px;
+        }
+
+        .bottom-center {
+            grid-column: 2;
+            grid-row: 3;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 40px;
+            font-size: 0.9rem;
+        }
+
+        .bottom-right {
+            grid-column: 3;
+            grid-row: 3;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-end;
+            padding-bottom: 40px;
+            text-align: right;
+            font-size: 0.9rem;
+            line-height: 1.2;
+        }
+
+        /* Grain Overlay */
+        .grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 20;
+            opacity: 0.07;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    <div class="grain"></div>
+
+    <div id="ui-layer">
+        <!-- Top Left -->
+        <div class="top-left">
+            <div class="brand-block">
+                <div>Pixelbuddha</div>
+                <div class="script-font">presents</div>
+            </div>
+            <div class="pills">
+                <div class="pill">5000x5000</div>
+                <div class="pill">JPG</div>
+            </div>
+        </div>
+
+        <!-- Top Right -->
+        <div class="top-right">
+            <div class="line"></div>
+        </div>
+
+        <!-- Center -->
+        <div class="center-content">
+            <h1>Sphere</h1>
+            <svg class="spiral-icon" viewBox="0 0 50 50">
+                <circle cx="25" cy="25" r="20" fill="none" stroke="white" stroke-width="1" />
+                <circle cx="25" cy="25" r="16" fill="none" stroke="white" stroke-width="1" />
+                <circle cx="25" cy="25" r="12" fill="none" stroke="white" stroke-width="1" />
+                <circle cx="25" cy="25" r="8" fill="none" stroke="white" stroke-width="1" />
+                <circle cx="25" cy="25" r="4" fill="none" stroke="white" stroke-width="1" />
+            </svg>
+        </div>
+
+        <!-- Bottom Left -->
+        <div class="bottom-left">
+            <div class="line" style="width: 250px;"></div>
+        </div>
+
+        <!-- Bottom Center -->
+        <div class="bottom-center">
+            <div>
+                Best <span class="script-font">for</span><br>
+                Your Creativity
+            </div>
+        </div>
+
+        <!-- Bottom Right -->
+        <div class="bottom-right">
+            Magnetic <span class="script-font">High Quality</span>
+             <!-- Squiggle SVG placeholder -->
+             <svg width="20" height="10" viewBox="0 0 20 10" fill="none" stroke="#1a1a1a">
+                 <path d="M1 5 Q 5 0, 10 5 T 19 5" />
+             </svg>
+        </div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
             }
-        });
-        let position_active = arrPositionModel.findIndex(
-            (val) => val.id == currentSection
-        );
-        if (position_active >= 0) {
-            let new_coordinates = arrPositionModel[position_active];
-            gsap.to(bee.position, {
-                x: new_coordinates.position.x,
-                y: new_coordinates.position.y,
-                z: new_coordinates.position.z,
-                duration: 3,
-                ease: "power1.out"
-            });
-            gsap.to(bee.rotation, {
-                x: new_coordinates.rotation.x,
-                y: new_coordinates.rotation.y,
-                z: new_coordinates.rotation.z,
-                duration: 3,
-                ease: "power1.out"
-            });
         }
-    };
+    </script>
+    <script type="module">
+        import * as THREE from 'three';
 
-    window.addEventListener("scroll", () => {
-        if (bee) {
-            modelMove();
-        }
-    });
+        // --- Setup ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.z = 5;
 
-    window.addEventListener("resize", () => {
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-    });
-</script>
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Performance optimization
+        container.appendChild(renderer.domElement);
 
-<style>
-    @import url("https://fonts.cdnfonts.com/css/devil-breeze");
-    @import url("https://fonts.cdnfonts.com/css/poppins");
-    @import url("https://fonts.cdnfonts.com/css/bimbo");
+        // --- Background Gradient ---
+        // We use a large plane behind the sphere to create the background gradient
+        const bgGeometry = new THREE.PlaneGeometry(20, 20);
+        const bgMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                uColorOuter: { value: new THREE.Color('#b3e5fc') }, // Light Blue (slightly stronger)
+                uColorInner: { value: new THREE.Color('#ff9980') }, // Reddish Orange
+            },
+            vertexShader: `
+                varying vec2 vUv;
+                void main() {
+                    vUv = uv;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform vec3 uColorOuter;
+                uniform vec3 uColorInner;
+                varying vec2 vUv;
+                void main() {
+                    float dist = distance(vUv, vec2(0.5));
+                    // Smooth gradient from center (inner) to edge (outer)
+                    // Adjusted smoothstep to make the blue appear closer to center
+                    float mixValue = smoothstep(0.0, 0.55, dist);
+                    vec3 color = mix(uColorInner, uColorOuter, mixValue);
+                    gl_FragColor = vec4(color, 1.0);
+                }
+            `,
+            depthWrite: false,
+        });
+        const bgPlane = new THREE.Mesh(bgGeometry, bgMaterial);
+        bgPlane.position.z = -5;
+        scene.add(bgPlane);
 
-    body {
-        margin: 0;
-        font-family: "Montserrat", sans-serif;
-        background-color: #1b1b1b;
-        color: #eef8ce;
-        font-family: "Poppins", sans-serif;
-        font-size: 14px;
-        background-image: url(https://assets.codepen.io/453571/bg.avif),
-            repeating-linear-gradient(to right,
-                transparent 0 500px,
-                #73814b33 500px 501px);
-        background-size: 100%;
-    }
 
-    *::-webkit-scrollbar {
-        width: 0;
-    }
+        // --- The Sphere ---
+        const sphereGeometry = new THREE.SphereGeometry(1.2, 64, 64);
+        const sphereMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                uTime: { value: 0 },
+                uColorCenter: { value: new THREE.Color('#ffffba') }, // Yellow
+                uColorMid: { value: new THREE.Color('#ffaa00') },    // Orange
+                uColorEdge: { value: new THREE.Color('#ff4d4d') },   // Red
+                uHover: { value: new THREE.Vector2(0.5, 0.5) },      // Mouse position
+            },
+            vertexShader: `
+                varying vec3 vNormal;
+                varying vec3 vViewPosition;
+                uniform float uTime;
+                uniform vec2 uHover;
 
-    * {
-        padding: 0;
-        margin: 0;
-        list-style: none;
-        box-sizing: border-box;
-    }
+                // Simplex noise function
+                vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+                vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+                vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
+                vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+                float snoise(vec3 v) {
+                    const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;
+                    const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);
+                    // First corner
+                    vec3 i  = floor(v + dot(v, C.yyy) );
+                    vec3 x0 = v - i + dot(i, C.xxx) ;
+                    // Other corners
+                    vec3 g = step(x0.yzx, x0.xyz);
+                    vec3 l = 1.0 - g;
+                    vec3 i1 = min( g.xyz, l.zxy );
+                    vec3 i2 = max( g.xyz, l.zxy );
+                    vec3 x1 = x0 - i1 + C.xxx;
+                    vec3 x2 = x0 - i2 + C.yyy; // 2.0*C.x = 1/3 = C.y
+                    vec3 x3 = x0 - D.yyy;      // -1.0+3.0*C.x = -0.5 = -D.y
+                    // Permutations
+                    i = mod289(i);
+                    vec4 p = permute( permute( permute(
+                                i.z + vec4(0.0, i1.z, i2.z, 1.0 ))
+                            + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))
+                            + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));
+                    // Gradients: 7x7 points over a square, mapped onto an octahedron.
+                    // The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)
+                    float n_ = 0.142857142857; // 1.0/7.0
+                    vec3  ns = n_ * D.wyz - D.xzx;
+                    vec4 j = p - 49.0 * floor(p * ns.z * ns.z);  //  mod(p,7*7)
+                    vec4 x_ = floor(j * ns.z);
+                    vec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)
+                    vec4 x = x_ *ns.x + ns.yyyy;
+                    vec4 y = y_ *ns.x + ns.yyyy;
+                    vec4 h = 1.0 - abs(x) - abs(y);
+                    vec4 b0 = vec4( x.xy, y.xy );
+                    vec4 b1 = vec4( x.zw, y.zw );
+                    vec4 s0 = floor(b0)*2.0 + 1.0;
+                    vec4 s1 = floor(b1)*2.0 + 1.0;
+                    vec4 sh = -step(h, vec4(0.0));
+                    vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
+                    vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
+                    vec3 p0 = vec3(a0.xy,h.x);
+                    vec3 p1 = vec3(a0.zw,h.y);
+                    vec3 p2 = vec3(a1.xy,h.z);
+                    vec3 p3 = vec3(a1.zw,h.w);
+                    //Normalise gradients
+                    vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+                    p0 *= norm.x;
+                    p1 *= norm.y;
+                    p2 *= norm.z;
+                    p3 *= norm.w;
+                    // Mix final noise value
+                    vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+                    m = m * m;
+                    return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1),
+                                                dot(p2,x2), dot(p3,x3) ) );
+                }
 
-    .section {
-        width: 100%;
-        min-height: 100vh;
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+                void main() {
+                    vNormal = normalize(normalMatrix * normal);
 
-    .content-fit {
-        width: min(1200px, 90vw);
-        margin: auto;
-        min-height: 100vh;
-        position: relative;
-        padding-block: 10em;
-    }
+                    // Interaction: Deform slightly based on mouse
+                    // We use uHover to influence the noise field
+                    float noise = snoise(position * 2.0 + uTime * 0.5 + vec3(uHover, 0.0));
 
-    header {
-        padding-block: 1em;
-        position: fixed;
-        top: 0;
-        width: 100%;
-        z-index: 10px;
-        backdrop-filter: blur(20px);
-        z-index: 100;
-        background-color: #1b1b1b11;
-        background-image: repeating-linear-gradient(to right,
-                transparent 0 500px,
-                #eee1 500px 501px);
-    }
+                    // Displace vertices slightly
+                    vec3 newPos = position + normal * noise * 0.08;
 
-    header .content-fit {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        min-height: unset !important;
-        padding-block: unset !important;
-    }
+                    vec4 mvPosition = modelViewMatrix * vec4(newPos, 1.0);
+                    vViewPosition = -mvPosition.xyz;
+                    gl_Position = projectionMatrix * mvPosition;
+                }
+            `,
+            fragmentShader: `
+                uniform vec3 uColorCenter;
+                uniform vec3 uColorMid;
+                uniform vec3 uColorEdge;
+                varying vec3 vNormal;
+                varying vec3 vViewPosition;
 
-    header .content-fit nav ul {
-        display: flex;
-        gap: 2em;
-    }
+                void main() {
+                    // Fresnel / Rim Lighting calculation
+                    vec3 normal = normalize(vNormal);
+                    vec3 viewDir = normalize(vViewPosition);
+                    float dotNV = dot(normal, viewDir);
 
-    #banner .title {
-        color: #d1ff48;
-        font-size: 11em;
-        font-family: "devil breeze";
-        font-weight: bold;
-        position: relative;
-        overflow: visible;
-        text-align: center;
-    }
+                    // Intensity goes from 1.0 (center) to 0.0 (edge)
+                    float intensity = dotNV;
 
-    #banner .title::before {
-        content: attr(data-before);
-        position: absolute;
-        z-index: -1;
-        color: oklch(0.78 0.17 80.01 / 0.19);
-        mask: linear-gradient(to bottom,
-                #000 -80%,
-                oklch(0 0 0/0),
-                #000,
-                oklch(0 0 0/0) 200%);
-        transform: scaleY(-1) translateY(-0.44lh);
-    }
+                    // Color Mixing
+                    vec3 color;
 
-    .section .decorate {
-        position: fixed;
-        z-index: -100;
-        pointer-events: none;
-    }
+                    // Gradient logic
+                    // If intensity is high (center), mix yellow and orange
+                    // If intensity is low (edge), mix orange and red
+                    float midPoint = 0.6;
 
-    #intro .content-fit {
-        display: flex;
-        gap: 30%;
-        justify-content: space-between;
-        align-items: center;
-    }
+                    if (intensity > midPoint) {
+                        float t = (intensity - midPoint) / (1.0 - midPoint);
+                        color = mix(uColorMid, uColorCenter, t);
+                    } else {
+                        float t = intensity / midPoint;
+                        color = mix(uColorEdge, uColorMid, t);
+                    }
 
-    .section .number {
-        font-family: "devil breeze";
-        font-size: 15em;
-        font-weight: bold;
-    }
+                    gl_FragColor = vec4(color, 1.0);
+                }
+            `
+        });
+        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        scene.add(sphere);
 
-    .section .content-fit .title {
-        font-family: "devil breeze";
-        font-size: 5em;
-        font-weight: bold;
-    }
+        // --- Interaction ---
+        const mouse = new THREE.Vector2();
+        const targetRotation = new THREE.Vector2();
+        const windowHalfX = window.innerWidth / 2;
+        const windowHalfY = window.innerHeight / 2;
 
-    #description .content-fit {
-        padding-right: 30%;
-    }
+        document.addEventListener('mousemove', (event) => {
+            mouse.x = (event.clientX - windowHalfX);
+            mouse.y = (event.clientY - windowHalfY);
 
-    #description .number {
-        font-size: 5em;
-    }
+            // Normalize for shader
+            sphereMaterial.uniforms.uHover.value.x = event.clientX / window.innerWidth;
+            sphereMaterial.uniforms.uHover.value.y = 1.0 - (event.clientY / window.innerHeight);
+        });
 
-    #description .title {
-        font-size: 7em;
-        font-weight: 500;
-    }
+        // --- Animation Loop ---
+        const clock = new THREE.Clock();
 
-    #contact .content-fit {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        text-align: center;
-    }
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
 
-    #contact table {
-        width: min(800px, 90vw);
-        padding-top: 2em;
-        font-size: 2em;
-        margin: auto;
-    }
+            sphereMaterial.uniforms.uTime.value = elapsedTime;
 
-    #contact table td {
-        padding-block: 0.5em;
-        border-bottom: 1px dashed #445022;
-    }
+            // Intelligent Interaction: Smooth rotation towards mouse
+            targetRotation.x = (mouse.y * 0.001);
+            targetRotation.y = (mouse.x * 0.001);
 
-    #contact table td:nth-child(1) {
-        text-align: left;
-        font-weight: 500;
-    }
+            sphere.rotation.x += 0.05 * (targetRotation.x - sphere.rotation.x);
+            sphere.rotation.y += 0.05 * (targetRotation.y - sphere.rotation.y);
 
-    #contact table td:nth-child(2) {
-        text-align: right;
-        font-weight: 200;
-    }
+            // Add some idle rotation
+            sphere.rotation.z += 0.002;
 
-    #contact .sign {
-        font-size: 10em;
-    }
-
-    #container3D {
-        position: fixed;
-        inset: 0;
-        /* background-color: red; */
-        z-index: 100;
-        pointer-events: none;
-    }
-
-    @media screen and (max-width: 1023px) {
-        #banner .title {
-            font-size: 5em;
+            renderer.render(scene, camera);
         }
+        animate();
 
-        #intro .content-fit {
-            flex-direction: column;
-        }
-    }
-
-    @media screen and (max-width: 767px) {
-        #banner .title {
-            font-size: 3em;
-        }
-
-        #intro .content-fit {
-            flex-direction: column;
-        }
-
-        .section .number {
-            font-size: 5em;
-        }
-
-        .section .content-fit .title {
-            font-size: 2em;
-        }
-
-        #description .content-fit {
-            padding-right: 0;
-        }
-
-        #contact table {
-            font-size: 1em;
-        }
-
-        #contact .sign {
-            font-size: 2em;
-        }
-
-        #container3D {
-            position: sticky;
-        }
-    }
-</style>
-
-<header>
-    <div class="content-fit">
-        <div class="logo">DDX</div>
-        <nav>
-            <ul>
-                <li>Contacts</li>
-                <li>Category</li>
-                <li>Login</li>
-            </ul>
-        </nav>
-    </div>
-</header>
-
-
-<div class="section" id="banner">
-    <div class="content-fit">
-        <div class="title" data-before="3D ANIMATION">3D ANIMATION</div>
-    </div>
-    <img src="https://assets.codepen.io/453571/flower.png" class="decorate" alt=""
-        style="width: 50vw; bottom: 0; right: 0;">
-    <img src="https://assets.codepen.io/453571/leaf.png" class="decorate" alt=""
-        style="width: 30vw; bottom: 0; left: 0;">
-</div>
-<div class="section" id="intro">
-    <div class="content-fit">
-        <div class="number">01</div>
-        <div class="des">
-            <div class="title">3d animation design for website</div>
-            <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Voluptatibus voluptas a porro libero
-                recusandae quae, aut ratione, incidunt laborum, necessitatibus similique enim doloremque ex.
-                Laudantium obcaecati aspernatur doloremque illo beatae, maxime hic itaque consequatur nisi
-                accusantium veritatis, voluptatem ratione! Placeat numquam nisi reiciendis harum quibusdam tempore
-                eaque deleniti accusantium, veniam quae eos sed, asperiores laborum corporis odit mollitia
-                consequatur adipisci? Quibusdam quis eos debitis non esse blanditiis laudantium rerum odit tempora?
-                Corrupti maiores velit consequuntur cupiditate reiciendis similique provident repudiandae.</p>
-        </div>
-    </div>
-</div>
-<div class="section" id="description">
-    <div class="content-fit">
-        <div class="number">02</div>
-        <div class="des">
-            <div class="title">DEN DX</div>
-            <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Voluptatibus voluptas a porro libero
-                recusandae quae, aut ratione, incidunt laborum, necessitatibus similique enim doloremque ex.
-                Laudantium obcaecati aspernatur doloremque illo beatae, maxime hic itaque consequatur nisi
-                accusantium veritatis, voluptatem ratione! Placeat numquam nisi reiciendis harum quibusdam tempore
-                eaque deleniti accusantium, veniam quae eos sed, asperiores laborum corporis odit mollitia
-                consequatur adipisci? Quibusdam quis eos debitis non esse blanditiis laudantium rerum odit tempora?
-                Corrupti maiores velit consequuntur cupiditate reiciendis similique provident repudiandae.</p>
-        </div>
-    </div>
-    <img src="https://assets.codepen.io/453571/leaf1.png" class="decorate" alt=""
-        style="width: 70vw; bottom: 0; right: 0;">
-</div>
-<div class="section" id="contact">
-    <div class="content-fit">
-        <div class="number">03</div>
-        <div class="des">
-            <div class="title">CONTACT</div>
-            <table>
-                <tr>
-                    <td>Email</td>
-                    <td>test@gmail.com</td>
-                </tr>
-                <tr>
-                    <td>Phone</td>
-                    <td>+228.231.235</td>
-                </tr>
-                <tr>
-                    <td>Website</td>
-                    <td>oldremon.com</td>
-                </tr>
-                <tr>
-                    <td>Youtube</td>
-                    <td>oldremon.com</td>
-                </tr>
-            </table>
-            <div class="sign">OLD REMON</div>
-        </div>
-    </div>
-</div>
-<div id="container3D"></div>
+        // --- Resize ---
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
