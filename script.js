@@ -130,7 +130,6 @@ const sphereMaterial = new THREE.ShaderMaterial({
         uColorEdge: { value: new THREE.Color('#ff4d4d') },
         uHover: { value: new THREE.Vector2(0.5, 0.5) },
         uDistort: { value: 0.04 },
-        uOpacity: { value: 1.0 } // Add opacity if needed, though simple fade via scale is easier
     },
     vertexShader,
     fragmentShader,
@@ -229,7 +228,6 @@ function animate() {
     rendererMini.clear();
     rendererMini.setScissorTest(true);
 
-    // 1. Gather all targets: Manifesto Visual + Cards
     const targets = [];
 
     // Manifesto Visual
@@ -274,7 +272,6 @@ function animate() {
                 miniMaterial.uniforms.uColorCenter.value.set('#ffffff');
                 miniMaterial.uniforms.uColorEdge.value.copy(baseColor).multiplyScalar(0.8);
             }
-            // Standard scale for cards
             miniSphere.scale.set(1, 1, 1);
         }
 

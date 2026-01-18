@@ -1,9 +1,9 @@
 :root {
-    --bg-color: #ffffff;
+    --bg-color: #fffaf0; /* Warm Cream Background */
     --text-color: #1a1a1a;
     --card-bg: #ffffff;
-    --card-back-1: #f3f4f6;
-    --card-back-2: #e5e7eb;
+    --card-back-1: #fff8e1; /* Warm light yellow */
+    --card-back-2: #ffecb3; /* Warm darker yellow */
     --accent: #ffaa00;
 }
 
@@ -22,7 +22,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 0; /* Behind everything by default, but we might adjust via GSAP */
+    z-index: 0;
     pointer-events: none;
 }
 
@@ -32,7 +32,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 10; /* Above regular content for mini globes */
+    z-index: 10;
     pointer-events: none;
 }
 
@@ -49,7 +49,7 @@ body {
 
 .hero-content {
     text-align: center;
-    margin-top: -10vh; /* Lift up slightly */
+    margin-top: -10vh;
 }
 
 .hero h1 {
@@ -57,6 +57,9 @@ body {
     font-weight: 800;
     margin-bottom: 1rem;
     letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #ffaa00, #ff4d4d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .hero p {
@@ -73,6 +76,7 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.1em;
     opacity: 0.5;
+    color: #ffaa00;
     animation: bounce 2s infinite;
 }
 
@@ -85,17 +89,13 @@ body {
 /* MANIFESTO / STACK SECTION */
 .manifesto {
     position: relative;
-    min-height: 150vh; /* Long enough to scroll through */
+    min-height: 150vh;
     z-index: 1;
     display: flex;
     justify-content: center;
     align-items: center;
-    /* Mesh Gradient Background */
-    background:
-        radial-gradient(circle at 0% 0%, rgba(138, 43, 226, 0.2) 0%, transparent 50%),
-        radial-gradient(circle at 100% 0%, rgba(0, 255, 255, 0.2) 0%, transparent 50%),
-        radial-gradient(circle at 50% 100%, rgba(255, 182, 193, 0.3) 0%, transparent 50%);
-    background-color: #fffaf0; /* Warm base */
+    /* Warm Gradient Background */
+    background: linear-gradient(to bottom, rgba(255, 250, 240, 0) 0%, rgba(255, 236, 179, 0.2) 100%);
     padding: 100px 20px;
 }
 
@@ -103,10 +103,10 @@ body {
     position: relative;
     width: 100%;
     max-width: 1200px;
-    height: 80vh; /* Viewport height for the card area */
+    height: 80vh;
     display: flex;
     justify-content: center;
-    align-items: center; /* Center the stack */
+    align-items: center;
 }
 
 .card-stack-element {
@@ -115,41 +115,34 @@ body {
     height: 100%;
     background: white;
     border-radius: 24px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.08);
     border: 1px solid rgba(0,0,0,0.05);
     transform-origin: center top;
-    transition: transform 0.5s ease;
 }
 
-/* Back Cards styling */
+/* Back Cards styling (Warm) */
 .card-back-2 {
-    background: #eef2ff; /* Light bluish grey */
+    background: linear-gradient(135deg, #fff8e1 0%, #fff 100%);
     top: -40px;
     transform: scale(0.9);
     z-index: 1;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
 }
 
 .card-back-1 {
-    background: #f3e8ff; /* Light purple grey */
+    background: linear-gradient(135deg, #fff3e0 0%, #fff 100%);
     top: -20px;
     transform: scale(0.95);
     z-index: 2;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
 }
 
 .card-front {
-    position: relative; /* It's the main one */
+    position: relative;
     top: 0;
     background: #ffffff;
     z-index: 3;
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* For the fog */
+    overflow: hidden;
 }
 
 /* Header Bar */
@@ -164,14 +157,10 @@ body {
     box-sizing: border-box;
 }
 
-.card-back-2 .card-header-bar, .card-back-1 .card-header-bar {
-    opacity: 0.5; /* Faded on back cards */
-}
-
 .logo-circle {
     width: 32px;
     height: 32px;
-    background: #000;
+    background: #ffaa00; /* Warm Accent */
     color: #fff;
     border-radius: 50%;
     display: flex;
@@ -182,19 +171,19 @@ body {
 .logo-circle-small {
     width: 24px;
     height: 24px;
-    background: #ccc;
+    background: #ffe0b2;
     border-radius: 50%;
 }
 
 .brand { font-weight: 600; font-size: 0.9rem; }
 .url { color: #888; font-size: 0.9rem; }
-.brand-faded { font-weight: 600; font-size: 0.8rem; color: #999; }
-.url-faded { color: #bbb; font-size: 0.8rem; }
+.brand-faded { font-weight: 600; font-size: 0.8rem; color: #ccbba0; }
+.url-faded { color: #ddcca0; font-size: 0.8rem; }
 
 /* Grid Body */
 .card-body-grid {
     display: grid;
-    grid-template-columns: 1fr 1.2fr 1fr; /* Center slightly wider */
+    grid-template-columns: 1fr 1.2fr 1fr;
     height: 100%;
     padding: 40px;
     box-sizing: border-box;
@@ -213,7 +202,7 @@ body {
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: #999;
+    color: #ffaa00;
     margin-bottom: 10px;
     font-weight: 600;
 }
@@ -236,15 +225,15 @@ p {
 
 .bottom-link {
     font-size: 0.9rem;
-    color: #000;
+    color: #ffaa00;
     text-decoration: none;
-    border-bottom: 1px solid #000;
+    border-bottom: 1px solid #ffaa00;
     padding-bottom: 2px;
     align-self: flex-start;
 }
 .bottom-link-muted {
     font-size: 0.8rem;
-    color: #888;
+    color: #999;
     text-decoration: none;
     align-self: flex-start;
 }
@@ -253,10 +242,10 @@ p {
 .visual-target {
     width: 100%;
     height: 300px;
-    /* background: #f0f0f0;  Placeholder if 3D missing */
-    border-radius: 100px; /* Pill shape like image */
+    border-radius: 100px;
     margin: 20px 0;
     position: relative;
+    /* Transparent background to show 3D */
 }
 .center-sub {
     text-align: center;
@@ -272,8 +261,9 @@ p {
     gap: 10px;
 }
 .feature-item {
-    background: #fafafa;
-    border: 1px solid #eee;
+    background: #fff8e1;
+    border: 1px solid #ffe0b2;
+    color: #e65100;
     padding: 10px 15px;
     border-radius: 8px;
     font-size: 0.85rem;
@@ -282,7 +272,7 @@ p {
     align-items: center;
     gap: 10px;
 }
-.feature-item .icon { color: #ccc; }
+.feature-item .icon { color: #ffaa00; }
 
 /* FOG OVERLAY */
 .card-fog {
@@ -291,7 +281,8 @@ p {
     left: 0;
     width: 100%;
     height: 40%;
-    background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, #fffaf0 100%);
+    /* Fade to white/cream */
+    background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, #ffffff 100%);
     pointer-events: none;
     z-index: 10;
 }
@@ -301,7 +292,7 @@ p {
     position: relative;
     z-index: 2;
     padding: 100px 20px;
-    background: transparent; /* Let body bg show or override */
+    background: transparent;
 }
 
 .cards-container {
@@ -336,7 +327,6 @@ p {
     width: 100%;
     height: 150px;
     margin-top: 20px;
-    /* border: 1px dashed #ccc; Debug */
 }
 
 .stat {
