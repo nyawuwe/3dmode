@@ -1,47 +1,28 @@
-import * as THREE from 'three';
-
-// --- Setup ---
+// --- Setup Main Scene (Background) ---
 const canvas = document.querySelector('#canvas3d');
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.z = 5;
-
 const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-// --- Background Gradient ---
-const bgGeometry = new THREE.PlaneGeometry(20, 20);
-const bgMaterial = new THREE.ShaderMaterial({
-    uniforms: {
-        uColorOuter: { value: new THREE.Color('#b3e5fc') },
-        uColorInner: { value: new THREE.Color('#ff9980') },
-    },
-    vertexShader: `
-        varying vec2 vUv;
-        void main() {
-            vUv = uv;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-    `,
-    fragmentShader: `
-        uniform vec3 uColorOuter;
-        uniform vec3 uColorInner;
-        varying vec2 vUv;
-        void main() {
-            float dist = distance(vUv, vec2(0.5));
-            float mixValue = smoothstep(0.0, 0.65, dist);
-            vec3 color = mix(uColorInner, uColorOuter, mixValue);
-            gl_FragColor = vec4(color, 1.0);
-        }
-    `,
-    depthWrite: false,
-});
-const bgPlane = new THREE.Mesh(bgGeometry, bgMaterial);
-bgPlane.position.z = -5;
-scene.add(bgPlane);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.z = 5;
 
-// --- The Sphere (Sun) ---
+// --- Setup Mini Scene (Foreground UI) ---
+const canvasMini = document.querySelector('#canvas-mini');
+const rendererMini = new THREE.WebGLRenderer({ canvas: canvasMini, antialias: true, alpha: true });
+rendererMini.setSize(window.innerWidth, window.innerHeight);
+rendererMini.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+// Important: Turn off autoClear so we can clear manually or let Scissor handle it
+// Actually for mini renderer, we want to clear the whole frame once, then render scissors.
+// Or just clear before rendering.
+rendererMini.setClearColor(0x000000, 0); // Transparent
+
+const miniScene = new THREE.Scene();
+const miniCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+miniCamera.position.z = 3.5;
+
+// --- The Main Sphere (Sun) ---
 const sphereGeometry = new THREE.SphereGeometry(1.2, 128, 128);
 
 // Shared GLSL Noise Function
@@ -102,6 +83,48 @@ const noiseChunk = `
     }
 `;
 
+const vertexShader = `
+    varying vec3 vNormal;
+    varying vec3 vViewPosition;
+    ${noiseChunk}
+
+    void main() {
+        vNormal = normalize(normalMatrix * normal);
+        float noise = snoise(position * 2.0 + uTime * 0.5 + vec3(uHover, 0.0));
+        vec3 newPos = position + normal * noise * uDistort;
+        vec4 mvPosition = modelViewMatrix * vec4(newPos, 1.0);
+        vViewPosition = -mvPosition.xyz;
+        gl_Position = projectionMatrix * mvPosition;
+    }
+`;
+
+const fragmentShader = `
+    uniform vec3 uColorCenter;
+    uniform vec3 uColorMid;
+    uniform vec3 uColorEdge;
+    varying vec3 vNormal;
+    varying vec3 vViewPosition;
+
+    void main() {
+        vec3 normal = normalize(vNormal);
+        vec3 viewDir = normalize(vViewPosition);
+        float intensity = dot(normal, viewDir);
+
+        vec3 color;
+        float midPoint = 0.6;
+
+        if (intensity > midPoint) {
+            float t = (intensity - midPoint) / (1.0 - midPoint);
+            color = mix(uColorMid, uColorCenter, t);
+        } else {
+            float t = intensity / midPoint;
+            color = mix(uColorEdge, uColorMid, t);
+        }
+        gl_FragColor = vec4(color, 1.0);
+    }
+`;
+
+// Main Sphere Material
 const sphereMaterial = new THREE.ShaderMaterial({
     uniforms: {
         uTime: { value: 0 },
@@ -109,83 +132,22 @@ const sphereMaterial = new THREE.ShaderMaterial({
         uColorMid: { value: new THREE.Color('#ffaa00') },
         uColorEdge: { value: new THREE.Color('#ff4d4d') },
         uHover: { value: new THREE.Vector2(0.5, 0.5) },
-        uDistort: { value: 0.08 },
+        uDistort: { value: 0.04 },
     },
-    vertexShader: `
-        varying vec3 vNormal;
-        varying vec3 vViewPosition;
-        ${noiseChunk}
-
-        void main() {
-            vNormal = normalize(normalMatrix * normal);
-            float noise = snoise(position * 2.0 + uTime * 0.5 + vec3(uHover, 0.0));
-            vec3 newPos = position + normal * noise * uDistort;
-            vec4 mvPosition = modelViewMatrix * vec4(newPos, 1.0);
-            vViewPosition = -mvPosition.xyz;
-            gl_Position = projectionMatrix * mvPosition;
-        }
-    `,
-    fragmentShader: `
-        uniform vec3 uColorCenter;
-        uniform vec3 uColorMid;
-        uniform vec3 uColorEdge;
-        varying vec3 vNormal;
-        varying vec3 vViewPosition;
-
-        void main() {
-            vec3 normal = normalize(vNormal);
-            vec3 viewDir = normalize(vViewPosition);
-            float intensity = dot(normal, viewDir);
-
-            vec3 color;
-            float midPoint = 0.6;
-
-            if (intensity > midPoint) {
-                float t = (intensity - midPoint) / (1.0 - midPoint);
-                color = mix(uColorMid, uColorCenter, t);
-            } else {
-                float t = intensity / midPoint;
-                color = mix(uColorEdge, uColorMid, t);
-            }
-            gl_FragColor = vec4(color, 1.0);
-        }
-    `
+    vertexShader,
+    fragmentShader
 });
 const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
 scene.add(sphere);
 
-// --- Outline Mesh (Inverted Hull) ---
-const outlineMaterial = new THREE.ShaderMaterial({
-    uniforms: {
-        uTime: { value: 0 },
-        uHover: { value: new THREE.Vector2(0.5, 0.5) },
-        uDistort: { value: 0.08 },
-        uThickness: { value: 0.03 } // Thickness of black border
-    },
-    side: THREE.BackSide, // Render inside faces
-    vertexShader: `
-        ${noiseChunk}
-        uniform float uThickness;
-
-        void main() {
-            float noise = snoise(position * 2.0 + uTime * 0.5 + vec3(uHover, 0.0));
-            // Push vertex out by (noise + thickness)
-            vec3 newPos = position + normal * (noise * uDistort + uThickness);
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(newPos, 1.0);
-        }
-    `,
-    fragmentShader: `
-        void main() {
-            gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); // Solid Black
-        }
-    `
-});
-const sphereOutline = new THREE.Mesh(sphereGeometry, outlineMaterial);
-sphere.add(sphereOutline); // Add as child so it moves/rotates with sphere
+// Mini Sphere (Shared Mesh for Mini Scene)
+const miniMaterial = sphereMaterial.clone();
+// We will update miniMaterial uniforms per card render
+const miniSphere = new THREE.Mesh(sphereGeometry, miniMaterial);
+miniScene.add(miniSphere);
 
 
 // --- Interactions ---
-
 const mouse = new THREE.Vector2();
 const targetRotation = new THREE.Vector2();
 const windowHalfX = window.innerWidth / 2;
@@ -202,8 +164,9 @@ document.addEventListener('mousemove', (event) => {
     sphereMaterial.uniforms.uHover.value.x = uX;
     sphereMaterial.uniforms.uHover.value.y = uY;
 
-    outlineMaterial.uniforms.uHover.value.x = uX;
-    outlineMaterial.uniforms.uHover.value.y = uY;
+    // We can also influence the mini spheres if desired
+    miniMaterial.uniforms.uHover.value.x = uX;
+    miniMaterial.uniforms.uHover.value.y = uY;
 });
 
 // Scroll Interactions (GSAP)
@@ -212,58 +175,38 @@ gsap.registerPlugin(ScrollTrigger);
 // Initial State
 sphere.position.y = 0;
 
-// Hero -> Manifesto
+// Hero -> Manifesto (Sphere Movement)
 gsap.to(sphere.position, {
-    y: 1.5,
+    y: 2.0,
     scrollTrigger: {
         trigger: ".manifesto",
         start: "top bottom",
-        end: "center center",
+        end: "top center",
         scrub: 1,
     }
 });
 gsap.to(sphere.scale, {
-    x: 0.6, y: 0.6, z: 0.6,
+    x: 0.5, y: 0.5, z: 0.5,
     scrollTrigger: {
         trigger: ".manifesto",
         start: "top bottom",
-        end: "center center",
+        end: "top center",
         scrub: 1
     }
 });
 
-// Mechanisms section - Sphere Interaction
-// Note: We will update the selectors in JS once we write the new HTML
-// For now, I'll keep generic logic that looks for data-color attributes on whatever cards we make
-function setupCardInteractions() {
-    const cards = document.querySelectorAll('.mechanism-card, .data-card'); // Support both old and new class names
-    cards.forEach(card => {
-        card.addEventListener('mouseenter', () => {
-            const colorHex = card.getAttribute('data-color');
-            if(colorHex) {
-                const color = new THREE.Color(colorHex);
-                gsap.to(sphereMaterial.uniforms.uColorEdge.value, {
-                    r: color.r, g: color.g, b: color.b,
-                    duration: 0.5
-                });
-            }
-            gsap.to(sphereMaterial.uniforms.uDistort, { value: 0.2, duration: 0.5 });
-            gsap.to(outlineMaterial.uniforms.uDistort, { value: 0.2, duration: 0.5 });
-        });
-
-        card.addEventListener('mouseleave', () => {
-            gsap.to(sphereMaterial.uniforms.uColorEdge.value, {
-                r: 1.0, g: 0.3, b: 0.3,
-                duration: 0.5
-            });
-            gsap.to(sphereMaterial.uniforms.uDistort, { value: 0.08, duration: 0.5 });
-            gsap.to(outlineMaterial.uniforms.uDistort, { value: 0.08, duration: 0.5 });
-        });
-    });
-}
-// Call initially, and exposes for re-calling if DOM changes
-setupCardInteractions();
-window.setupCardInteractions = setupCardInteractions;
+// Manifesto Content Animation
+gsap.from(".grid-col", {
+    y: 50,
+    opacity: 0,
+    duration: 1,
+    stagger: 0.2,
+    ease: "power3.out",
+    scrollTrigger: {
+        trigger: ".manifesto",
+        start: "top 80%",
+    }
+});
 
 
 // --- Animation Loop ---
@@ -273,9 +216,11 @@ function animate() {
     requestAnimationFrame(animate);
     const elapsedTime = clock.getElapsedTime();
 
+    // Update Uniforms
     sphereMaterial.uniforms.uTime.value = elapsedTime;
-    outlineMaterial.uniforms.uTime.value = elapsedTime;
+    miniMaterial.uniforms.uTime.value = elapsedTime;
 
+    // Rotate Main Sphere
     targetRotation.x = (mouse.y * 0.001);
     targetRotation.y = (mouse.x * 0.001);
 
@@ -283,12 +228,72 @@ function animate() {
     sphere.rotation.y += 0.05 * (targetRotation.y - sphere.rotation.y);
     sphere.rotation.z += 0.002;
 
+    // Rotate Mini Sphere
+    miniSphere.rotation.copy(sphere.rotation); // Sync rotation or independent
+    miniSphere.rotation.z -= 0.005; // Slightly different spin
+
+
+    // --- Render Main Scene (Background) ---
+    // Clears #canvas3d
     renderer.render(scene, camera);
+
+    // --- Render Mini Globes in Cards (Foreground) ---
+    // Clears #canvas-mini fully once per frame
+    rendererMini.setScissorTest(false);
+    rendererMini.clear();
+
+    rendererMini.setScissorTest(true);
+
+    const cards = document.querySelectorAll('.data-card');
+    cards.forEach((card) => {
+        const target = card.querySelector('.mini-globe-target');
+        if (!target) return;
+
+        const rect = target.getBoundingClientRect();
+
+        // Check if visible
+        if (rect.bottom < 0 || rect.top > window.innerHeight ||
+            rect.right < 0 || rect.left > window.innerWidth) {
+            return;
+        }
+
+        // Adjust scissor/viewport
+        const width = rect.width;
+        const height = rect.height;
+        const left = rect.left;
+        const bottom = window.innerHeight - rect.bottom; // Invert Y for GL
+
+        rendererMini.setViewport(left, bottom, width, height);
+        rendererMini.setScissor(left, bottom, width, height);
+
+        // Update Material Colors based on Card Data
+        const colorHex = card.getAttribute('data-color');
+        if(colorHex) {
+            const baseColor = new THREE.Color(colorHex);
+            miniMaterial.uniforms.uColorMid.value.copy(baseColor);
+            miniMaterial.uniforms.uColorCenter.value.set('#ffffff');
+            miniMaterial.uniforms.uColorEdge.value.copy(baseColor).multiplyScalar(0.8);
+        }
+
+        rendererMini.render(miniScene, miniCamera);
+    });
+
+    rendererMini.setScissorTest(false);
 }
 animate();
 
 window.addEventListener('resize', () => {
+    // Update both cameras
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
+
+    // Mini camera aspect? Actually, since we use scissor, the aspect ratio is determined by the viewport?
+    // The camera projection matrix assumes an aspect ratio.
+    // Ideally, for each scissor, we should update the camera aspect ratio to match the square target (40x40).
+    // The mini-globe target is square. So aspect is 1.
+    miniCamera.aspect = 1;
+    miniCamera.updateProjectionMatrix();
+
     renderer.setSize(window.innerWidth, window.innerHeight);
+    rendererMini.setSize(window.innerWidth, window.innerHeight);
 });
