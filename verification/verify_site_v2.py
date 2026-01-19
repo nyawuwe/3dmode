@@ -9,15 +9,15 @@ def verify_site():
 
         # 1. Load the page (assuming file is served or accessible)
         # We need a server. The environment usually provides one or we open the file.
-        # Since the previous tool run used localhost:8082, I assume a server is running or I should start one.
+        # Since the previous tool run used localhost:8083, I assume a server is running or I should start one.
         # But wait, I don't have a server running in the background in my plan steps yet.
         # I should probably start a server or use file:// path.
-        # For this environment, usually `python3 -m http.server 8082` is good.
+        # For this environment, usually `python3 -m http.server 8083` is good.
 
         # Let's assume the user/env handles it or I start it.
         # I will start it in the background in the bash command before running this script.
 
-        page.goto("http://localhost:8082")
+        page.goto("http://localhost:8083")
         time.sleep(2) # Wait for Three.js init
 
         # 2. Screenshot Hero
