@@ -28,9 +28,12 @@ body {
     width: 100%;
     height: 100%;
     z-index: 1; /* Behind UI */
-    pointer-events: none; /* Let clicks pass through if needed, but form needs clicks */
+    cursor: grab; /* Indicate draggable */
 }
-/* Re-enable pointer events for canvas interactions if we implement orbit controls, but here UI is on top */
+
+#canvas-container:active {
+    cursor: grabbing;
+}
 
 /* UI Layer */
 .ui-layer {
