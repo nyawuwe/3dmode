@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shiplux - Logistics Section</title>
+    <link rel="stylesheet" href="shiplux_section.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+    <div id="canvas-container">
+        <canvas id="shipluxCanvas"></canvas>
+    </div>
+
+    <!-- UI Overlay -->
+    <div class="ui-layer">
+        <!-- Header -->
+        <header class="top-bar">
+            <div class="logo">
+                <span class="logo-icon">≫</span> Shiplux
+            </div>
+            <div class="contact-info">
+                +1 (888) 530-0334
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Left Side: Title -->
+            <div class="title-block">
+                <h1>
+                    PREMIER VEHICLE<br>
+                    <span class="stretch-word">T<span class="stretch">R</span>ANSPORT</span><br>
+                    SERVICE
+                </h1>
+            </div>
+
+            <!-- Right Side: Form -->
+            <div class="form-block">
+                <div class="cta-text">
+                    START SHI<span class="stretch-small">PP</span>ING NOW
+                </div>
+                <div class="shipping-form">
+                    <div class="input-group">
+                        <label>PICK UP</label>
+                        <input type="text" placeholder="Enter country">
+                    </div>
+                    <div class="input-group">
+                        <label>DELIVERY</label>
+                        <input type="text" placeholder="Enter country">
+                    </div>
+                    <button class="quote-btn">GET A QUOTE</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bottom-bar">
+            <nav class="footer-nav">
+                <a href="#">WHY SHIPLUX</a>
+                <a href="#">OUR SERVICES</a>
+                <a href="#">BLOG</a>
+                <a href="#">SUPPORT</a>
+                <a href="#">CONTACT US</a>
+            </nav>
+            <div class="search-block">
+                <span class="search-icon">🔍</span> SEARCH
+            </div>
+        </footer>
+    </div>
+
+    <script src="shiplux_section.js"></script>
+</body>
+</html>
