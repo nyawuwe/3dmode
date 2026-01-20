@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chainviz Validators Explorer - Light Version</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="chainviz.css">
+
+    <!-- Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+    <!-- 1. Presentation Header (Outside Dashboard) -->
+    <header class="presentation-header">
+        <div class="header-top">
+            <span class="theme-label">light theme</span>
+        </div>
+
+        <div class="header-content">
+            <div class="title-block">
+                <h1>The Power of<br>Light Version</h1>
+            </div>
+
+            <div class="description-block">
+                <p>The light version of our application offers users a refreshing and clean aesthetic. Its minimalist approach emphasizes content, helping users focus on tasks without visual fatigue.</p>
+            </div>
+
+            <div class="description-block">
+                <p>Whether for personal preference or situational need, this version stands as a testament to our commitment to user-centric design.</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. The Dashboard (The Image Content) -->
+    <main class="dashboard-container">
+        <!-- Background Gradient Blur Layer inside dashboard -->
+        <div class="dashboard-bg-gradients">
+            <div class="blob-blue"></div>
+            <div class="blob-red"></div>
+            <div class="blob-green"></div>
+        </div>
+
+        <div class="dashboard-ui">
+            <!-- Dashboard Header -->
+            <div class="dash-header">
+                <div class="brand">CHA — IN — VIZ</div>
+
+                <div class="network-toggle">
+                    <button class="toggle-btn active">
+                        <span class="icon">🪶</span> Kusama
+                    </button>
+                    <button class="toggle-btn">
+                        <span class="icon-dot"></span> Polkadot
+                    </button>
+                </div>
+
+                <div class="top-menu">
+                    <nav>
+                        <a href="#" class="active"><span class="dot">●</span> Main</a>
+                        <a href="#">About</a>
+                        <a href="#">Active list</a>
+                    </nav>
+                    <div class="search-icon">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Content Grid -->
+            <div class="dash-content">
+                <!-- 3D Area -->
+                <div class="viz-area">
+                    <div id="canvas-container"></div>
+
+                    <!-- Bottom Left Toolbar -->
+                    <div class="toolbar">
+                        <div class="tool-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+                        <div class="tool-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+                        <div class="tool-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></div>
+                        <div class="tool-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+                        <div class="percentage"> % </div>
+                    </div>
+                </div>
+
+                <!-- Right Data Panel -->
+                <div class="data-panel">
+                    <div class="stats-header">
+                        <h3>CHAINVIZ V1.1</h3>
+                        <div class="stat-row"><span>Best block</span> <span class="val">11336005</span></div>
+                        <div class="stat-row"><span>Finalized block</span> <span class="val">11336005</span></div>
+                        <div class="stat-row"><span>Era</span> <span class="val">3334</span></div>
+                        <div class="stat-row"><span>Reward points</span> <span class="val">492880</span></div>
+                        <div class="stat-row"><span>Return</span> <span class="val">17.82%</span></div>
+                        <div class="stat-row"><span>Total stake</span> <span class="val">5.1234 MKSM</span></div>
+                        <div class="stat-row"><span>Min Stake</span> <span class="val">3811.0475 MKSM</span></div>
+                        <div class="stat-row"><span>Avg Stake</span> <span class="val">3811.0475 MKSM</span></div>
+                        <div class="stat-row"><span>Max Stake</span> <span class="val">3811.0475 MKSM</span></div>
+                    </div>
+
+                    <div class="validator-list">
+                        <!-- Items will be filled via JS or static here for fidelity -->
+                        <!-- The "Active" item that connects to 3D -->
+                        <div class="list-item active-connection">
+                            <span class="block-num">492880</span> <span class="hash">0xd398u35...k2RvYxM63hsh</span>
+                        </div>
+                        <!-- More items... -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="chainviz.js"></script>
+</body>
+</html>
