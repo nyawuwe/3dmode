@@ -41,7 +41,7 @@ bgPlane.position.z = -5;
 scene.add(bgPlane);
 
 // --- The Sphere ---
-const sphereGeometry = new THREE.SphereGeometry(1.2, 128, 128); // Higher Detail
+const sphereGeometry = new THREE.SphereGeometry(1.2, 64, 64); // Higher Detail
 const sphereMaterial = new THREE.ShaderMaterial({
     uniforms: {
         uTime: { value: 0 },
