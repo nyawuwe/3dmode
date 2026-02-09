@@ -251,8 +251,16 @@ function animate() {
 animate();
 
 // --- Resize ---
-window.addEventListener('resize', () => {
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+window.addEventListener('resize', debounce(() => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-});
+}, 250));
