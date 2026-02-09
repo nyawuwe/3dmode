@@ -197,14 +197,15 @@ gsap.to(sphere.scale, {
 
 // Mechanisms section - Sphere Interaction
 const cards = document.querySelectorAll('.mechanism-card');
+const tempColor = new THREE.Color();
 cards.forEach(card => {
     card.addEventListener('mouseenter', () => {
         const colorHex = card.getAttribute('data-color');
-        const color = new THREE.Color(colorHex);
+        tempColor.set(colorHex);
 
         // Tween Uniforms
         gsap.to(sphereMaterial.uniforms.uColorEdge.value, {
-            r: color.r, g: color.g, b: color.b,
+            r: tempColor.r, g: tempColor.g, b: tempColor.b,
             duration: 0.5
         });
         gsap.to(sphereMaterial.uniforms.uDistort, {
